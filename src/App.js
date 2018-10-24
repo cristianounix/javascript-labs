@@ -5,20 +5,13 @@ class App extends React.Component {
 
   constructor() {
     super();
-    this.state = {
-      x:0,
-      y:0,
-    };
+    this.state = {};
 
     this.handleMousemove = this.handleMousemove.bind(this);
     this.throttle = this.throttle.bind(this);
   }
 
   handleMousemove(event) {
-    this.setState({
-      x: event.x,
-      y: event.y,
-    });
     console.log(`mouse position: ${event.x}:${event.y}`);
   }
 
@@ -34,7 +27,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    window.document.addEventListener('mousemove', this.throttle(this.handleMousemove, 8000));
+    window.document.addEventListener('mousemove', this.throttle(this.handleMousemove, 1000));
   }
 
   render() {
