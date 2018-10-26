@@ -1,5 +1,6 @@
-import React from 'react'
-import { hot } from 'react-hot-loader'
+import React from 'react';
+import Store from './Store';
+import { hot } from 'react-hot-loader';
 
 class App extends React.Component {
 
@@ -12,6 +13,11 @@ class App extends React.Component {
   }
 
   handleMousemove(event) {
+    const obj = {
+      x: event.x,
+      y: event.y,
+    };
+    Store.append(obj);
     console.log(`mouse position: ${event.x}:${event.y}`);
   }
 
@@ -27,6 +33,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    console.log('Store: ', Store);
     window.document.addEventListener('mousemove', this.throttle(this.handleMousemove, 1000));
   }
 
