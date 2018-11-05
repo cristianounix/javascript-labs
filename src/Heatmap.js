@@ -7,7 +7,11 @@ class Heatmap extends React.Component {
   }
   
   render() {
-    return (<h1>HEATMAP</h1>);
+    return (
+      <div>
+        
+      </div>
+    );
   }
 
 }
