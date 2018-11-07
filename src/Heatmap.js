@@ -12,8 +12,16 @@ class Heatmap extends React.Component {
 
   }
 
+  static getDerivedStateFromProps(props, state) {
+    console.log('Derivate', props.data.data);
+    if (!props.data) {
+      return {};
+    }
+    return props.data;
+  }
+
   componentDidMount() {
-    console.log('-->', this.props);
+    // console.log('DID Mount: ', this.props);
     // create refs for canvas
     // heat = simpleheat('canvas').data(data).max(18)
   }

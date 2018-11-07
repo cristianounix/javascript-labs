@@ -7,16 +7,14 @@ class App extends React.Component {
 
   constructor() {
     super();
-    this.state = {
-      data: null,
-    };
+    this.state = {};
 
     this.handleTrack = this.handleTrack.bind(this);
   }
 
   handleTrack(data) {
     // console.log('--->', data);
-    this.setState(() => {
+    this.setState({
       data
     });
   }
@@ -27,7 +25,7 @@ class App extends React.Component {
       <div>
         <div>
           <Heatmap 
-            data={this.state.data}
+            data={this.state}
           />
         </div>
         <div>

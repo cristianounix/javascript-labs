@@ -1,19 +1,7 @@
-'use strict';
-
-if (typeof module !== 'undefined') module.exports = simpleheat;
-
-function simpleheat(canvas) {
-    if (!(this instanceof simpleheat)) return new simpleheat(canvas);
-
-    this._canvas = canvas = typeof canvas === 'string' ? document.getElementById(canvas) : canvas;
-
-    this._ctx = canvas.getContext('2d');
-    this._width = canvas.width;
-    this._height = canvas.height;
-
-    this._max = 1;
-    this._data = [];
-}
+// import React from 'react';
+// 'use strict';
+// // https://github.com/mourner/simpleheat
+// if (typeof module !== 'undefined') module.exports = simpleheat;
 
 simpleheat.prototype = {
 
@@ -140,3 +128,16 @@ simpleheat.prototype = {
         }
     }
 };
+
+export default function simpleheat(canvas) {
+    if (!(this instanceof simpleheat)) return new simpleheat(canvas);
+
+    this._canvas = canvas = typeof canvas === 'string' ? document.getElementById(canvas) : canvas;
+
+    this._ctx = canvas.getContext('2d');
+    this._width = canvas.width;
+    this._height = canvas.height;
+
+    this._max = 1;
+    this._data = [];
+}
