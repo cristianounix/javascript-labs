@@ -2,8 +2,8 @@ import React from 'react';
 
 class Track extends React.Component {
   
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       store: {},
     };
@@ -47,7 +47,8 @@ class Track extends React.Component {
       y: event.y,
       w: 1,
     };
-    this.increasePositionIfhas(obj);
+    this.props.handle(obj);
+    // this.increasePositionIfhas(obj);
   }
   
   throttle(func, delay) {
@@ -62,7 +63,6 @@ class Track extends React.Component {
   }
   
   componentDidMount() {
-    console.log('ssStore: ', this.state.store);
     window.document.addEventListener('mousemove', this.throttle(this.handleMousemove, 300));
   }
   
