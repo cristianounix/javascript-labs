@@ -70,7 +70,7 @@ class DrawMap extends Component {
   }
 }
 
-ProgressArc.propTypes = {
+DrawMap.propTypes = {
   id: PropTypes.string,
   height: PropTypes.number,
   width: PropTypes.number,
