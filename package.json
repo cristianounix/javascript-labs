@@ -33,6 +33,7 @@
     "dev": "webpack-serve --config *.dev.js"
   },
   "dependencies": {
+    "d3": "^5.7.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-hot-loader": "^4.3.3"
