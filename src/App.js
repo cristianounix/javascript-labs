@@ -1,6 +1,6 @@
 import React from 'react';
 import Track from './Track';
-import Heatmap from './Heatmap';
+import DrawMap from './DrawMap';
 import { hot } from 'react-hot-loader';
 
 class App extends React.Component {
@@ -13,7 +13,7 @@ class App extends React.Component {
   }
 
   handleTrack(data) {
-    // console.log('--->', data);
+    console.log('--->', data);
     this.setState({
       data
     });
@@ -24,7 +24,15 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <Heatmap 
+          <DrawMap
+            id={"rrr"}
+            height={300}
+            width={300}
+            innerRadius={100}
+            outerRadius={110}
+            backgroundColor={"red"}
+            foregroundColor={"green"}
+            percentComplete={0.3}
             data={this.state}
           />
         </div>

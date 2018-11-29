@@ -1,7 +1,4 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const convert = require('koa-connect')
-const history = require('connect-history-api-fallback')
-const proxy = require('http-proxy-middleware')
 
 module.exports = {
   mode: 'development',
@@ -32,9 +29,5 @@ module.exports = {
   ],
   serve: {
     content: [__dirname],
-    add: app => {
-      app.use(convert(proxy('/api', { target: 'http://localhost:8081' })))
-      app.use(convert(history()))
-    },
   },
 }
