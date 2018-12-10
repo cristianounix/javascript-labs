@@ -22,8 +22,8 @@ export class Canvas extends React.PureComponent {
     // let endAngle      = Math.PI + (Math.PI * j) / 2; // End point on circle
     let endAngle      = 0; // End point on circle
     let anticlockwise = false;                  // Draw anticlockwise
-    // this.ctx.fillRect(this.props.data.x, this.props.data.y, this.props.data.x, this.props.data.y);
-    this.ctx.arc(this.props.data.x, this.props.data.y, radius, startAngle, endAngle, anticlockwise);
+    this.ctx.fillRect(this.props.data.x, this.props.data.y, this.props.data.x, this.props.data.y);
+    // this.ctx.arc(this.props.data.x, this.props.data.y, radius, startAngle, endAngle, anticlockwise);
     this.ctx.fill();
   }
 
