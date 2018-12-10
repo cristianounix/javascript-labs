@@ -1,4 +1,5 @@
 import React from 'react';
+import html2canvas from 'html2canvas';
 
 class Track extends React.Component {
   
@@ -64,6 +65,12 @@ class Track extends React.Component {
   
   componentDidMount() {
     window.document.addEventListener('mousemove', this.throttle(this.handleMousemove, 300));
+
+    html2canvas(document.body).then(function(canvas) {
+      // document.body.appendChild(canvas);
+      console.log('Canvas html to canvas-->', canvas);
+    });
+    
   }
   
   render() {
