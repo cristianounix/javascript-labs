@@ -1,5 +1,8 @@
 node_modules
 package-lock.json
 
-kafka/data/kafka
-kafka/data/zookeeper
+# Kafka
+kafka/data/kafka/*
+!kafka/data/kafka/.gitkeep
+kafka/data/zookeeper/*
+!kafka/data/zookeeper/.gitkeep
