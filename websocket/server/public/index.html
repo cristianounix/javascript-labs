@@ -1,0 +1,151 @@
+<html>
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <meta charset="utf-8">
+        <title>Meu Primeiro Jogo Multiplayer</title>
+        <script src="/socket.io/socket.io.js"></script>
+
+        <style>
+            body {
+                margin: 40px 0 0 0;
+                padding: 0;
+                background-color: #EEE;
+                text-align: center;
+            }
+
+            #game-canvas {
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                image-rendering: -moz-crisp-edges;
+                -webkit-box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
+                -moz-box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
+                box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
+                margin-bottom: 20px;
+                margin-left: 20px;
+                margin-right: 20px;
+                display: inline-block;
+                vertical-align: top;
+            }
+ 
+        </style>
+    </head>
+    <body>
+
+        <div id="game-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+    </div>
+
+        <script>
+            let connected = false
+            const socket = io()
+            let game
+            const gameCanvas = document.getElementById('game-canvas')
+            let totalPlayersCount = ''
+
+            socket.on('connect', () => {
+                connected = true
+                console.log('> Connected to server')
+            })
+
+            socket.on('disconnect', () => {
+                console.log('> Disconnected')
+                connected = false
+            })
+
+            socket.on('bootstrap', (gameInitialState) => {
+                game = gameInitialState
+                console.log('> Received initial state', game)
+                gameCanvas.style.width = `${game.canvasWidth * 18}px`
+                gameCanvas.style.height = `${game.canvasHeight * 18}px`
+                gameCanvas.width = game.canvasWidth
+                gameCanvas.height = game.canvasHeight
+
+                const context = gameCanvas.getContext('2d')
+
+                requestAnimationFrame(renderGame)
+
+                function renderGame() {
+                    const allPixels = game.canvasWidth * game.canvasHeight
+
+                    context.globalAlpha = 1
+                    context.fillStyle = 'white'
+                    context.fillRect(0, 0, game.canvasWidth, game.canvasHeight)
+
+                    for (const socketId in game.players) {
+                        const player = game.players[socketId]
+                        context.fillStyle = '#000000'
+                        context.globalAlpha = 0.1
+                        context.fillRect(player.x, player.y, 1, 1)
+                    } 
+                    const currentPlayer = game.players[socket.id]
+                    context.fillStyle = '#F0DB4F'
+                    context.globalAlpha = 1
+                    context.fillRect(currentPlayer.x, currentPlayer.y, 1, 1)
+
+                    requestAnimationFrame(renderGame)
+                }
+
+            })
+
+            socket.on('player-update', (player) => {
+                console.log('> Updating player: ', game.players)
+                game.players[player.socketId] = Object.assign({}, game.players[player.socketId], player.newState)
+                console.log('> Updating player: ', game.players[player.socketId])
+            })
+
+            socket.on('player-remove', (socketId) => {
+                delete game.players[socketId]
+            })
+
+            socket.on('concurrent-connections', (concurrentConnections) => {
+                totalPlayersCount = concurrentConnections
+            })
+
+
+            function handleMouse(event) {
+
+                if (connected) {
+                  console.log('>>>', event);
+                    const player = game.players[socket.id]
+                    socket.emit('player-move', { x: event.clientX, y: event.clientY })
+                }
+            }
+
+            // Essa lógica deveria estar no server.
+            // Como está no front, é fácil burlar.
+            function throttle(callback, delay) {
+                let isThrottled = false, args, context;
+
+                function wrapper() {
+                    if (isThrottled) {
+                    args = arguments;
+                    context = this;
+                    return;
+                    }
+
+                    isThrottled = true;
+                    callback.apply(this, arguments);
+
+                    setTimeout(() => {
+                    isThrottled = false;
+                    if (args) {
+                        wrapper.apply(context, args);
+                        args = context = null;
+                    }
+                    }, delay);
+                }
+
+                return wrapper;
+                }
+
+            // const throttledKeydown = throttle(handleKeydown, 80)
+
+            document.addEventListener('mousemove', handleMouse)
+
+        </script>
+    </body>
+</html>
