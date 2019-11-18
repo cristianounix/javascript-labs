@@ -3,7 +3,7 @@ const webApp = express()
 const webServer = require('http').createServer(webApp)
 const io = require('socket.io')(webServer)
 
-const game = createGame()
+const editor = createEditor()
 
 webApp.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html')
@@ -12,66 +12,61 @@ webApp.get('/', function(req, res){
 
 io.on('connection', function(socket){
 
-  const playerState = game.addPlayer(socket.id)
-  socket.emit('bootstrap', game)
+  const editorState = editor.addEditor(socket.id)
+  socket.emit('bootstrap', editor)
 
   socket.broadcast.emit('player-update', {
-    socketId: socket.id,
-    newState: playerState
+    ...editorState
   })
 
   socket.on('player-move', (direction) => {
-    game.movePlayer(socket.id, direction)
+    editor.moveEditor(socket.id, direction)
 
     socket.broadcast.emit('player-update', {
-      socketId: socket.id,
-      newState: game.players[socket.id]
+      id: socket.id,
+      ...editor.persons[socket.id]
     })
 
   })
 
   socket.on('disconnect', () => {
-    game.removePlayer(socket.id)
-    socket.broadcast.emit('player-remove', socket.id)
+    editor.removeEditor(socket.id);
+    socket.broadcast.emit('player-remove', socket.id);
   })
 
 });
 
-webServer.listen(3000, function(){
-  console.log('> Server listening on port:',3000)
+webServer.listen(3001, function(){
+  console.log('> Server listening on port:',3001)
 });
 
-function createGame() {
-  console.log('> Starting new game')
+function createEditor() {
 
-  const game = {
-    canvasWidth: 30,
-    canvasHeight: 30,
-    players: {},
-    addPlayer,
-    removePlayer,
-    movePlayer
+  const editor = {
+    persons: {},
+    addEditor,
+    removeEditor,
+    moveEditor
   }
 
-  function addPlayer(socketId) {
-    return game.players[socketId] = {
-      x: 100,
-      y: 100,
+  function addEditor(socketId) {
+    return editor.persons[socketId] = {
+      id: socketId,
+      text: '',
+      keyPressed: null,
     }
   }
 
-  function removePlayer(socketId) {
-    delete game.players[socketId]
+  function removeEditor(socketId) {
+    delete editor.persons[socketId]
   }
 
-  function movePlayer(socketId, direction) {
-    const player = game.players[socketId]
-    player.x = direction.x;
-    player.y = direction.y;
-    return player
+  function moveEditor(socketId, direction) {
+    const person = editor.persons[socketId]
+    person.text = direction.text;
+    person.keyPressed = direction.keyPressed;
+    return person
   }
- 
-  
 
-  return game
+  return editor
 }
