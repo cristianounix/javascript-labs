@@ -4,9 +4,10 @@
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
         <meta charset="utf-8">
-        <title>Meu Primeiro Jogo Multiplayer</title>
+        <title>Simple text collaborative</title>
         <script src="/socket.io/socket.io.js"></script>
-
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+        <script src="https://lonekorean.github.io/highlight-within-textarea/jquery.highlight-within-textarea.js"></script>
         <style>
             body {
                 margin: 40px 0 0 0;
@@ -14,37 +15,93 @@
                 background-color: #EEE;
                 text-align: center;
             }
-
-            #game-canvas {
-                image-rendering: pixelated;
-                image-rendering: crisp-edges;
-                image-rendering: -moz-crisp-edges;
-                -webkit-box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
-                -moz-box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
-                box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
-                margin-bottom: 20px;
-                margin-left: 20px;
-                margin-right: 20px;
-                display: inline-block;
-                vertical-align: top;
+            textarea {
+                /* width: 710px; */
+                /* height: 500px; */
             }
- 
+
+            .hwt-container {
+                display: inline-block;
+                position: relative;
+                overflow: hidden !important;
+                -webkit-text-size-adjust: none !important;
+            }
+
+            .hwt-backdrop {
+                position: absolute !important;
+                top: 0 !important;
+                right: -99px !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                padding-right: 99px !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+            }
+
+            .hwt-highlights {
+                width: auto !important;
+                height: auto !important;
+                border-color: transparent !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                color: transparent !important;
+                overflow: hidden !important;
+            }
+
+            .hwt-input {
+                display: block !important;
+                position: relative !important;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                font: inherit;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+            }
+
+            .hwt-content {
+                border: 1px solid;
+                background: none transparent !important;
+            }
+
+            .hwt-content mark {
+                padding: 0 !important;
+                color: inherit;
+            }
         </style>
     </head>
     <body>
 
-        <div id="game-container">
-            <canvas id="game-canvas"></canvas>
+        <div id="container">
+            <textarea name="textarea-collab" id="textarea-collab" cols="30" rows="10"></textarea>
         </div>
 
+        <div>
+            <h3>Users</h3>
+            <ul id="editors"></ul>
+        </div>
     </div>
-
-        <script>
+    
+        <script type="text/javascript">
             let connected = false
             const socket = io()
-            let game
-            const gameCanvas = document.getElementById('game-canvas')
+            let editorGlobal = {};
             let totalPlayersCount = ''
+
+            function updateEditor(data, editor) {
+                data.persons[editor.id] = Object.assign({}, data.persons[editor.id], editor)
+                return data;
+            }
+
+            function renderUsers(data) {
+                const t = getUsers(data).map(p => '<li>'+p+'</li>').join('')
+                return t;
+            }
+
+            function getUsers(data) {
+                const yy = data && Object.keys(data.persons).length > 0 ? Object.keys(data.persons) : [];
+                return yy;
+            }
 
             socket.on('connect', () => {
                 connected = true
@@ -57,95 +114,50 @@
             })
 
             socket.on('bootstrap', (gameInitialState) => {
-                game = gameInitialState
-                console.log('> Received initial state', game)
-                gameCanvas.style.width = `${game.canvasWidth * 18}px`
-                gameCanvas.style.height = `${game.canvasHeight * 18}px`
-                gameCanvas.width = game.canvasWidth
-                gameCanvas.height = game.canvasHeight
-
-                const context = gameCanvas.getContext('2d')
-
-                requestAnimationFrame(renderGame)
-
-                function renderGame() {
-                    const allPixels = game.canvasWidth * game.canvasHeight
-
-                    context.globalAlpha = 1
-                    context.fillStyle = 'white'
-                    context.fillRect(0, 0, game.canvasWidth, game.canvasHeight)
-
-                    for (const socketId in game.players) {
-                        const player = game.players[socketId]
-                        context.fillStyle = '#000000'
-                        context.globalAlpha = 0.1
-                        context.fillRect(player.x, player.y, 1, 1)
-                    } 
-                    const currentPlayer = game.players[socket.id]
-                    context.fillStyle = '#F0DB4F'
-                    context.globalAlpha = 1
-                    context.fillRect(currentPlayer.x, currentPlayer.y, 1, 1)
-
-                    requestAnimationFrame(renderGame)
+                editorGlobal = gameInitialState
+                for (const id in Object.keys(editorGlobal.persons)) {
+                    const person = editorGlobal.persons[id]
                 }
-
+                console.log('######>>>>> ',editorGlobal)
+                $('#editors').html(renderUsers(editorGlobal))
+                $('#textarea-collab').highlightWithinTextarea({
+                    highlight: getUsers(editorGlobal).map(user => {
+                        return {
+                            highlight: 'strawberry',
+                            className: 'red'
+                        }
+                    })
+                });
             })
 
-            socket.on('player-update', (player) => {
-                console.log('> Updating player: ', game.players)
-                game.players[player.socketId] = Object.assign({}, game.players[player.socketId], player.newState)
-                console.log('> Updating player: ', game.players[player.socketId])
+            socket.on('player-update', (editor) => {
+                editorGlobal = updateEditor(editorGlobal, editor);
+                $('#editors').html(renderUsers(editorGlobal))
+                $('#textarea-collab').highlightWithinTextarea({
+                    highlight: getUsers(editorGlobal).map(user => {
+                        return {
+                            highlight: 'strawberry',
+                            className: 'red'
+                        }
+                    })
+                });
             })
 
-            socket.on('player-remove', (socketId) => {
-                delete game.players[socketId]
+            socket.on('player-remove', (id) => {
+                delete editorGlobal.persons[id];
+                $('#editors').html(renderUsers(editorGlobal))
             })
 
-            socket.on('concurrent-connections', (concurrentConnections) => {
-                totalPlayersCount = concurrentConnections
-            })
-
-
-            function handleMouse(event) {
-
+            function handleKeyboard(event) {
                 if (connected) {
-                  console.log('>>>', event);
-                    const player = game.players[socket.id]
-                    socket.emit('player-move', { x: event.clientX, y: event.clientY })
+                    const person = editorGlobal.persons[socket.id];
+                    person.text = person.text.concat(event.key);
+                    person.keyPressed = person.text.concat(event.key);
+                    socket.emit('player-move', { text: person.text, keyPressed: event.key })
                 }
             }
 
-            // Essa lógica deveria estar no server.
-            // Como está no front, é fácil burlar.
-            function throttle(callback, delay) {
-                let isThrottled = false, args, context;
-
-                function wrapper() {
-                    if (isThrottled) {
-                    args = arguments;
-                    context = this;
-                    return;
-                    }
-
-                    isThrottled = true;
-                    callback.apply(this, arguments);
-
-                    setTimeout(() => {
-                    isThrottled = false;
-                    if (args) {
-                        wrapper.apply(context, args);
-                        args = context = null;
-                    }
-                    }, delay);
-                }
-
-                return wrapper;
-                }
-
-            // const throttledKeydown = throttle(handleKeydown, 80)
-
-            document.addEventListener('mousemove', handleMouse)
-
+            document.getElementById('textarea-collab').addEventListener('keypress', handleKeyboard)
         </script>
     </body>
 </html>
