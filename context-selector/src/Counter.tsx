@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useContextSelector } from 'use-context-selector';
 
 import { MyContext } from './state';
