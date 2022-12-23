@@ -7,8 +7,12 @@ class QueueError {
 
 
 export class Queue {
-  queue: any[any] = []
-  name: string = 'default'
+  /**
+   * protected: Can be accessed by the same class and children classes but not from the other classes
+   * private: Can be accessed only by the same class
+   */
+  private queue: any[any] = []
+  private name: string = 'default'
 
   constructor(name: string = 'default') {
     this.name = name;
